@@ -8,6 +8,8 @@ import Register from './pages/auth/Register';
 import MixingsList from './pages/mixings/MixingsList';
 import MixingDetail from './pages/mixings/MixingDetail';
 import CreateMixing from './pages/mixings/CreateMixing';
+import UserProfile from './pages/profile/UserProfile';
+import AnalyticsDashboard from './pages/analytics/AnalyticsDashboard';
 
 function App() {
   return (
@@ -38,6 +40,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <CreateMixing />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <UserProfile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/analytics" 
+            element={
+              <ProtectedRoute>
+                <AnalyticsDashboard />
               </ProtectedRoute>
             } 
           />

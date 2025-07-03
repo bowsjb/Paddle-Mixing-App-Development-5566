@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import SafeIcon from '../../common/SafeIcon';
+import NotificationCenter from '../notifications/NotificationCenter';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiMenu, FiX, FiUser, FiLogOut, FiPlus, FiCalendar } = FiIcons;
+const { FiMenu, FiX, FiUser, FiLogOut, FiPlus, FiCalendar, FiBarChart, FiSettings } = FiIcons;
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,6 +54,15 @@ const Navbar = () => {
                     <SafeIcon icon={FiCalendar} className="w-4 h-4" />
                     <span>Mixings</span>
                   </Link>
+                  
+                  <Link
+                    to="/analytics"
+                    className="flex items-center space-x-1 text-gray-700 hover:text-primary-500 transition-colors"
+                  >
+                    <SafeIcon icon={FiBarChart} className="w-4 h-4" />
+                    <span>Analytics</span>
+                  </Link>
+                  
                   <Link
                     to="/create-mixing"
                     className="flex items-center space-x-1 bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors"
@@ -60,8 +70,18 @@ const Navbar = () => {
                     <SafeIcon icon={FiPlus} className="w-4 h-4" />
                     <span>Create Mixing</span>
                   </Link>
+
+                  <NotificationCenter />
+
                   <div className="flex items-center space-x-4">
-                    <span className="text-gray-700">Hi, {user.user_metadata?.full_name || user.email}</span>
+                    <Link
+                      to="/profile"
+                      className="flex items-center space-x-1 text-gray-700 hover:text-primary-500 transition-colors"
+                    >
+                      <SafeIcon icon={FiUser} className="w-4 h-4" />
+                      <span>Profile</span>
+                    </Link>
+                    
                     <button
                       onClick={handleSignOut}
                       className="flex items-center space-x-1 text-gray-700 hover:text-red-500 transition-colors"
@@ -157,12 +177,30 @@ const Navbar = () => {
                       </Link>
 
                       <Link
+                        to="/analytics"
+                        onClick={closeMenu}
+                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <SafeIcon icon={FiBarChart} className="w-5 h-5 text-gray-600" />
+                        <span className="text-gray-800">Analytics</span>
+                      </Link>
+
+                      <Link
                         to="/create-mixing"
                         onClick={closeMenu}
                         className="flex items-center space-x-3 p-3 rounded-lg bg-primary-50 hover:bg-primary-100 transition-colors"
                       >
                         <SafeIcon icon={FiPlus} className="w-5 h-5 text-primary-600" />
                         <span className="text-primary-600 font-medium">Create Mixing</span>
+                      </Link>
+
+                      <Link
+                        to="/profile"
+                        onClick={closeMenu}
+                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <SafeIcon icon={FiUser} className="w-5 h-5 text-gray-600" />
+                        <span className="text-gray-800">Profile</span>
                       </Link>
 
                       <button

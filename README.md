@@ -23,58 +23,75 @@ A modern React application for organizing paddle tennis mixing events with Supab
 - ✅ **Booking Modal**: Intuitive booking interface with validation
 - ✅ **Participant Lists**: Organized display of confirmed and waiting participants
 
-### Part 3 (Coming Next)
-- [ ] Email notifications
-- [ ] User profiles
-- [ ] Search and filtering
-- [ ] PWA features
-- [ ] Analytics dashboard
+### Part 3 (Completed)
+- ✅ **Email Notifications**: Automated email system for bookings and updates
+- ✅ **User Profiles**: Comprehensive user profiles with stats and preferences
+- ✅ **Advanced Search & Filtering**: Powerful search and filter system
+- ✅ **Analytics Dashboard**: Detailed analytics for event organizers
+- ✅ **Notification Center**: In-app notification system
+- ✅ **PWA Features**: Progressive Web App capabilities
+- ✅ **User Preferences**: Customizable notification settings
+- ✅ **Enhanced Navigation**: Improved navigation with new features
 
-## New Components (Part 2)
+## New Features (Part 3)
 
-### 🎯 **MixingDetail Page**
-- Complete event overview with real-time stats
-- Booking functionality with instant updates
-- Organizer controls for event management
-- Progress tracking and capacity management
+### 👤 **User Profiles**
+- Complete user profile management
+- Personal statistics and ratings
+- Bio and location information
+- Notification preferences
+- Activity tracking
 
-### 📋 **BookingModal**
-- Dynamic participant name entry
-- Validation for booking limits
-- Waiting list notifications
-- Responsive design for mobile
+### 📊 **Analytics Dashboard**
+- Event performance metrics
+- Participant engagement stats
+- Popular time slots analysis
+- Monthly trends visualization
+- Recent activity feed
 
-### 👥 **ParticipantsList**
-- Real-time participant tracking
-- Booking timestamps
-- Organizer actions (cancel bookings)
-- Participant count display
+### 🔍 **Advanced Search & Filtering**
+- Full-text search across events
+- Multi-criteria filtering
+- Real-time filter updates
+- Saved search preferences
+- Smart suggestions
 
-### ⏰ **WaitingList**
-- Queue position display
-- Automatic promotion when spots open
-- Waiting list management
-- Clear visual indicators
+### 🔔 **Notification System**
+- In-app notification center
+- Email notifications
+- Push notifications (PWA)
+- Customizable preferences
+- Real-time updates
 
-### 📖 **RulesDisplay**
-- Expandable rule sections
-- Clear categorization
-- Enhanced readability
-- Mobile-optimized layout
+### 📱 **PWA Features**
+- Offline functionality
+- App-like experience
+- Push notifications
+- Home screen installation
+- Background sync
 
-## Real-time Features
+## Technical Improvements (Part 3)
 
-### 🔄 **Live Updates**
-- Automatic refresh when bookings change
-- Real-time participant count updates
-- Instant waiting list management
-- Live capacity tracking
+### 🛠️ **Enhanced Architecture**
+- Service layer for notifications
+- Utility functions for PWA
+- Improved component structure
+- Better state management
+- Performance optimizations
 
-### 📊 **Smart Booking Logic**
-- Automatic waiting list assignment
-- Spot availability calculation
-- Booking validation
-- Conflict prevention
+### 📈 **Analytics & Insights**
+- User engagement tracking
+- Event performance metrics
+- Trend analysis
+- Activity monitoring
+- Data visualization
+
+### 🔐 **Security & Privacy**
+- Enhanced RLS policies
+- User preference management
+- Data encryption
+- Privacy controls
+- Audit logging
 
 ## Setup Instructions
 
@@ -93,66 +110,17 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 ### 3. Database Setup
-Execute the following SQL in your Supabase SQL editor:
+Execute the SQL files in order:
+1. `supabase/migrations/2025_create_tables.sql` (Part 1 & 2)
+2. `supabase/migrations/20240115_part3_schema.sql` (Part 3)
 
-```sql
--- Create users table
-CREATE TABLE users (
-  id UUID REFERENCES auth.users(id) PRIMARY KEY,
-  email TEXT UNIQUE NOT NULL,
-  full_name TEXT NOT NULL,
-  phone TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Create mixings table
-CREATE TABLE mixings (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  organizer_id UUID REFERENCES users(id) NOT NULL,
-  max_participants INTEGER NOT NULL,
-  reserve_spots INTEGER NOT NULL DEFAULT 0,
-  release_date DATE,
-  release_time TIME,
-  rules_config JSONB NOT NULL,
-  people_per_booking INTEGER NOT NULL DEFAULT 1,
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'scheduled', 'completed', 'cancelled')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Create bookings table
-CREATE TABLE bookings (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  mixing_id UUID REFERENCES mixings(id) ON DELETE CASCADE NOT NULL,
-  user_id UUID REFERENCES users(id) NOT NULL,
-  participant_names TEXT[] NOT NULL,
-  booking_status TEXT NOT NULL DEFAULT 'attending' CHECK (booking_status IN ('attending', 'cancelled', 'waiting')),
-  booked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  cancelled_at TIMESTAMP WITH TIME ZONE
-);
-
--- Enable RLS (Row Level Security)
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE mixings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
-
--- Create policies
-CREATE POLICY "Users can view own profile" ON users FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (auth.uid() = id);
-
-CREATE POLICY "Anyone can view active mixings" ON mixings FOR SELECT USING (status = 'active');
-CREATE POLICY "Users can create mixings" ON mixings FOR INSERT WITH CHECK (auth.uid() = organizer_id);
-CREATE POLICY "Organizers can update own mixings" ON mixings FOR UPDATE USING (auth.uid() = organizer_id);
-
-CREATE POLICY "Users can view bookings for mixings they're involved in" ON bookings FOR SELECT USING (
-  auth.uid() = user_id OR 
-  auth.uid() IN (SELECT organizer_id FROM mixings WHERE id = mixing_id)
-);
-CREATE POLICY "Users can create bookings" ON bookings FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own bookings" ON bookings FOR UPDATE USING (auth.uid() = user_id);
+### 4. Edge Functions Setup
+Deploy the email notification function:
+```bash
+supabase functions deploy send-email
 ```
 
-### 4. Run the Application
+### 5. Run the Application
 ```bash
 npm run dev
 ```
@@ -163,69 +131,103 @@ npm run dev
 - **Styling**: Tailwind CSS
 - **Animation**: Framer Motion
 - **Forms**: React Hook Form
-- **Backend**: Supabase (PostgreSQL, Auth, Real-time)
+- **Backend**: Supabase (PostgreSQL, Auth, Real-time, Edge Functions)
 - **Icons**: React Icons (Feather Icons)
 - **Date Handling**: date-fns
-- **Real-time**: Supabase Realtime subscriptions
+- **PWA**: Service Worker, Web App Manifest
+- **Notifications**: Web Push API
 
-## Key Features Implemented
+## New Components (Part 3)
 
-### 🎯 **Advanced Booking System**
-- Multi-participant booking support
-- Automatic waiting list management
-- Real-time capacity tracking
-- Booking validation and conflict prevention
+### 👤 **UserProfile**
+- Complete profile management
+- Statistics dashboard
+- Preference settings
+- Activity history
 
-### 📱 **Mobile-First Design**
-- Responsive layouts for all screen sizes
-- Touch-friendly interactions
-- Optimized for mobile usage
-- Progressive enhancement
+### 📊 **AnalyticsDashboard**
+- Performance metrics
+- Trend visualization
+- Activity tracking
+- Engagement analytics
 
-### 🔒 **Security & Permissions**
-- Row-level security (RLS) policies
-- Organizer-specific controls
-- Protected routes and actions
-- Secure user authentication
+### 🔍 **SearchAndFilter**
+- Advanced search functionality
+- Multi-criteria filtering
+- Real-time updates
+- Filter persistence
 
-### ⚡ **Performance Optimizations**
-- Real-time subscriptions for live updates
-- Optimistic UI updates
-- Efficient data fetching
-- Minimal re-renders
+### 🔔 **NotificationCenter**
+- In-app notifications
+- Real-time updates
+- Notification preferences
+- Action handling
+
+### 📱 **PWA Components**
+- Service worker registration
+- Push notification handling
+- Offline functionality
+- App installation
 
 ## Usage Guide
 
 ### For Participants
-1. **Browse Events**: View available mixing events
-2. **Book Spots**: Reserve spots for yourself and friends
-3. **Join Waiting List**: Get notified when spots become available
-4. **Manage Bookings**: Cancel or modify your reservations
+1. **Complete Profile**: Set up your profile with preferences
+2. **Search Events**: Use advanced search to find perfect mixings
+3. **Get Notifications**: Stay updated with real-time notifications
+4. **Track Activity**: Monitor your participation history
 
 ### For Organizers
-1. **Create Events**: Set up mixing events with custom rules
-2. **Manage Participants**: View and manage all bookings
-3. **Monitor Capacity**: Track event filling and waiting lists
-4. **Enforce Rules**: Manage cancellations and disputes
+1. **Analytics Dashboard**: Monitor event performance
+2. **Participant Management**: Track engagement and feedback
+3. **Notifications**: Automated communication with participants
+4. **Insights**: Understand your community better
 
-## What's New in Part 2
+### For All Users
+1. **PWA Experience**: Install app for native-like experience
+2. **Offline Access**: Basic functionality works offline
+3. **Push Notifications**: Get updates even when app is closed
+4. **Personalization**: Customize your experience
 
-### 🚀 **Enhanced User Experience**
-- **Real-time Updates**: See changes instantly without refreshing
-- **Smart Booking**: Automatic waiting list management
-- **Detailed Views**: Comprehensive event information
-- **Mobile Optimization**: Perfect experience on all devices
+## What's New in Part 3
 
-### 🛠️ **Technical Improvements**
-- **Component Architecture**: Modular, reusable components
-- **State Management**: Efficient real-time state updates
-- **Error Handling**: Comprehensive error management
-- **Performance**: Optimized rendering and data fetching
+### 🚀 **Advanced Features**
+- **Complete User Profiles**: Full profile management with stats
+- **Smart Analytics**: Comprehensive event performance tracking
+- **Powerful Search**: Advanced filtering and search capabilities
+- **Notification System**: Complete notification infrastructure
+- **PWA Ready**: Full progressive web app capabilities
 
-### 📊 **Advanced Features**
-- **Capacity Management**: Smart spot allocation
-- **Queue System**: Fair waiting list management
-- **Real-time Notifications**: Instant feedback on actions
-- **Organizer Tools**: Powerful event management capabilities
+### 🛠️ **Technical Excellence**
+- **Service Architecture**: Clean separation of concerns
+- **Performance**: Optimized for speed and efficiency
+- **Security**: Enhanced privacy and data protection
+- **Scalability**: Built for growth and expansion
+- **Maintainability**: Clean, documented code
 
-Ready for Part 3! 🎉
+### 📊 **Business Intelligence**
+- **User Insights**: Understand user behavior
+- **Event Analytics**: Track event success
+- **Engagement Metrics**: Monitor community growth
+- **Trend Analysis**: Identify patterns and opportunities
+- **Performance Tracking**: Measure key metrics
+
+## Future Enhancements
+
+### Potential Next Steps
+- [ ] Social features (friend connections, groups)
+- [ ] Payment integration for paid events
+- [ ] Calendar integration
+- [ ] Advanced matching algorithms
+- [ ] Multi-language support
+- [ ] API for third-party integrations
+
+The Paddle Tennis Mixing App is now a comprehensive platform ready for production use! 🎉
+
+## Contributing
+
+We welcome contributions! Please see our contributing guidelines for more information.
+
+## License
+
+This project is licensed under the MIT License.
